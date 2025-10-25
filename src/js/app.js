@@ -5,12 +5,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const favContainer = document.getElementById('favourites-container');
   const recContainer = document.getElementById('recommendations');
 
+  const BACKEND_URL = "https://moovyb.onrender.com";
+
   async function fetchMovies(search = "Avengers", type = "movie") {
     const spinner = document.getElementById('spinner');
     spinner.classList.remove('hidden');
 
     try {
-      const res = await fetch(`http://localhost:3000/movies?q=${encodeURIComponent(search)}`);
+      const res = await fetch(`${BACKEND_URL}/movies?q=${encodeURIComponent(search)}`);
       const data = await res.json();
       spinner.classList.add('hidden');
 
@@ -23,17 +25,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-async function fetchMovieDetails(imdbID) {
+  async function fetchMovieDetails(imdbID) {
     try {
-        const res = await fetch(`http://localhost:3000/movies?id=${imdbID}`);
-        const data = await res.json();
-        return data; // Now contains full movie details
+      const res = await fetch(`${BACKEND_URL}/movies?id=${imdbID}`);
+      const data = await res.json();
+      return data; // full movie details from backend
     } catch (err) {
-        console.error('Error fetching movie details:', err);
-        return {};
+      console.error('Error fetching movie details:', err);
+      return {};
     }
-}
-
+  }
 
   async function renderMovies(movies) {
     trendingContainer.innerHTML = "";
@@ -94,6 +95,89 @@ async function fetchMovieDetails(imdbID) {
       trendingContainer.appendChild(card);
     }
   }
+
+  function recommendMovies(type) {
+    if(!recContainer) return;
+    const rv = JSON.parse(localStorage.getItem('moovy.recent')) || [];
+    const filtered = rv.filter(m => m.type === type);
+    recContainer.innerHTML = "";
+    if(filtered.length === 0){
+      recContainer.innerHTML = `<p class="inter-400 text-gray-400">No recommendations yet</p>`;
+      return;
+    }
+    filtered.slice(0,6).forEach(m => {
+      const div = document.createElement('div');
+      div.className = "text-sm inter-500 text-gray-300 mb-1";
+      div.textContent = m.title;
+      recContainer.appendChild(div);
+    });
+  }
+
+  function updateFavouritesPage() {
+    if(!favContainer) return;
+    const favList = JSON.parse(localStorage.getItem('moovy.favs')) || [];
+    favContainer.innerHTML = "";
+
+    if(favList.length === 0){
+      favContainer.innerHTML = `<p class="inter-400 text-gray-400">No favourites added yet.</p>`;
+      return;
+    }
+
+    favList.forEach(movie => {
+      const div = document.createElement('div');
+      div.className = "flex items-center gap-3 mb-3";
+      div.innerHTML = `
+        <img src="${movie.Poster !== 'N/A' ? movie.Poster : 'assets/images/featured.jpg'}" class="w-12 h-16 object-cover rounded"/>
+        <div class="flex-1 inter-500 text-white">${movie.Title}</div>
+        <button class="text-red-500 hover:text-gray-300 remove-btn">Remove</button>
+      `;
+
+      div.querySelector('.remove-btn').addEventListener('click', () => {
+        let favList = JSON.parse(localStorage.getItem('moovy.favs')) || [];
+        favList = favList.filter(f => f.imdbID !== movie.imdbID);
+        localStorage.setItem('moovy.favs', JSON.stringify(favList));
+        updateFavouritesPage();
+
+        document.querySelectorAll('.poster-glow').forEach(card => {
+          const titleEl = card.querySelector('h3');
+          if(titleEl && titleEl.textContent === movie.Title){
+            const heart = card.querySelector('button');
+            heart.classList.remove('text-red-500');
+          }
+        });
+      });
+
+      favContainer.appendChild(div);
+    });
+  }
+
+  const searchForm = document.getElementById('search-form');
+  if(searchForm){
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const query = document.getElementById('search-input').value;
+      if(query) fetchMovies(query);
+    });
+  }
+
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('bg-[var(--flux-primary)]'));
+      btn.classList.add('bg-[var(--flux-primary)]');
+      const type = btn.dataset.type;
+      fetchMovies(document.getElementById('search-input').value || "Avengers", type);
+    });
+  });
+
+  const menuBtn = document.getElementById('menu-btn');
+  const closeBtn = document.getElementById('close-menu');
+  const mobileMenu = document.getElementById('mobile-menu');
+  if(menuBtn && closeBtn && mobileMenu){
+    menuBtn.addEventListener('click', ()=> mobileMenu.classList.remove('menu-closed'));
+    closeBtn.addEventListener('click', ()=> mobileMenu.classList.add('menu-closed'));
+  }
+
   fetchMovies();
   updateFavouritesPage();
 });
