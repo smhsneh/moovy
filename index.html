@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moovy</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Parkinsans:wght@300..800&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="src/css/styles.css">
+
+  <style>
+    :root {
+      --bg-black: #010307;
+      --flux-dark: #0E255C;
+      --flux-primary: #0B42BE;
+      --flux-accent: #4EABFD;
+      --flux-accent-soft: #5CD7FC;
+      --muted: #C0C6D5;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-black); color: var(--muted); }
+    .thin-scroll::-webkit-scrollbar { height: 8px; }
+    .thin-scroll::-webkit-scrollbar-thumb { background: rgba(78,171,253,0.2); border-radius: 999px; }
+    .poster-glow { box-shadow: 0 8px 30px rgba(78,171,253,0.08),0 2px 8px rgba(11,66,190,0.06); border:1px solid rgba(76,170,253,0.06);}
+    .cta-glow { transition: transform .18s ease, box-shadow .18s ease; }
+    .cta-glow:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 12px 30px rgba(78,171,253,0.12); }
+    #recommendations div:hover { color: #4eabfd; cursor: pointer; text-decoration: underline; }
+  </style>
+</head>
+<body class="antialiased min-h-screen">
+
+<header class="sticky top-0 z-40 backdrop-blur bg-black/40 border-b border-white/6">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <div class="flex items-center gap-4">
+        <a href="#" class="flex items-center gap-2">
+          <img src="assets/images/logo.png" alt="Moovy Logo" class="w-10 h-10 object-contain"/>
+          <span class="parkinsans-600 text-white font-semibold">moovy</span>
+        </a>
+      </div>
+      <nav class="hidden md:flex items-center gap-6">
+        <a href="#" class="px-3 py-1 rounded-md text-sm hover:scale-105 transition transform duration-200 bg-gradient-to-r from-[var(--flux-dark)] to-[var(--flux-primary)] bg-clip-text text-transparent hover:text-white parkinsans-500">popular</a>
+        <a href="#" class="text-sm text-gray-300 hover:text-white inter-500">watchlist</a>
+        <a href="#" class="text-sm text-gray-300 hover:text-white inter-500">favourites</a>
+        <a href="#" class="text-sm text-gray-300 hover:text-white inter-500">categories</a>
+      </nav>
+      <div class="flex items-center gap-3 md:hidden">
+        <button id="menu-btn" class="p-2 rounded-md bg-white/5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="mobile-menu" class="fixed top-0 left-0 w-64 h-full bg-[var(--bg-black)] z-50 menu-closed transition-transform duration-300">
+    <div class="p-6 flex flex-col gap-6">
+      <a href="#" class="text-white font-semibold text-lg parkinsans-600">Popular</a>
+      <a href="#" class="text-gray-300 hover:text-white text-lg inter-500">Watchlist</a>
+      <a href="#" class="text-gray-300 hover:text-white text-lg inter-500">Favourites</a>
+      <a href="#" class="text-gray-300 hover:text-white text-lg inter-500">Categories</a>
+      <button id="close-menu" class="mt-6 px-4 py-2 rounded-lg bg-gradient-to-r from-[var(--flux-dark)] to-[var(--flux-primary)] text-white font-semibold hover:from-[var(--flux-primary)] hover:to-[var(--flux-accent-soft)] transition parkinsans-500">Close</button>
+    </div>
+  </div>
+</header>
+
+<main class="pt-6">
+  <section class="relative">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="relative rounded-xl overflow-hidden">
+        <img src="assets/images/featured.jpg" alt="featured" class="w-full h-72 md:h-96 object-cover brightness-75" />
+        <div class="absolute inset-0 bg-gradient-to-r from-[var(--flux-dark)]/85 via-[var(--flux-primary)]/30 to-[var(--bg-black)]/95 flex items-center">
+          <div class="max-w-4xl p-6 md:p-12">
+            <div class="text-white max-w-2xl">
+              <h1 class="parkinsans-700 text-2xl md:text-4xl font-bold leading-tight">Find your next great movie</h1>
+              <p class="inter-400 mt-3 text-sm md:text-base text-gray-300">Trending, curated picks and personal recommendations.</p>
+              <div class="mt-6 flex flex-col md:flex-row gap-3">
+                <form id="search-form" class="flex w-full md:w-auto gap-2">
+                  <input id="search-input" type="text" placeholder="Search movies..." 
+                         class="w-full md:w-72 px-4 py-2 rounded-2xl bg-black/60 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 inter-400" />
+                  <button type="submit" 
+                          class="px-5 py-2 rounded-2xl bg-gradient-to-r from-[var(--flux-dark)] to-[var(--flux-primary)] hover:from-[var(--flux-primary)] hover:to-[var(--flux-accent-soft)] text-white font-semibold parkinsans-500 cta-glow">
+                    Search
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="filters" class="flex gap-3 overflow-x-auto thin-scroll mt-6 px-4 sm:px-0">
+    <button class="filter-btn px-3 py-1 rounded-xl bg-[var(--flux-dark)] text-white hover:bg-[var(--flux-primary)] inter-500" data-type="movie">Movies</button>
+    <button class="filter-btn px-3 py-1 rounded-xl bg-[var(--flux-dark)] text-white hover:bg-[var(--flux-primary)] inter-500" data-type="series">Series</button>
+    <button class="filter-btn px-3 py-1 rounded-xl bg-[var(--flux-dark)] text-white hover:bg-[var(--flux-primary)] inter-500" data-type="episode">Episodes</button>
+  </div>
+
+  <section class="mt-4">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <h2 class="text-white font-semibold mb-4 parkinsans-600">Trending now</h2>
+      <div id="trending" class="flex gap-4 overflow-x-auto pb-4 thin-scroll relative">
+        <div id="spinner" class="absolute inset-0 flex items-center justify-center hidden">
+          <div class="w-12 h-12 border-4 border-t-[var(--flux-primary)] border-gray-600 rounded-full animate-spin"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="recommendations-section" class="mt-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="text-white font-semibold mb-4 parkinsans-600">Recommendations</h>
+    <div id="recommendations" class="flex flex-col gap-2">
+      <p class="inter-400 text-gray-400">Click a movie to see recommendations here!</p>
+    </div>
+  </section>
+
+<section id="favourites-section" class="mt-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  <h2 class="text-white font-semibold mb-4 parkinsans-600">Your Favourites</h2>
+  <div id="favourites-container" class="flex flex-col gap-2">
+    <p class="inter-400 text-gray-400">No favourites added yet.</p>
+  </div>
+</section>
+
+
+  <section class="mt-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="text-white font-semibold mb-4 parkinsans-600">Popular Movies</h2>
+    <div id="popular" class="flex gap-4 overflow-x-auto pb-4 thin-scroll">
+      <div class="min-w-[160px] h-36 bg-gray-800 rounded-lg animate-pulse"></div>
+      <div class="min-w-[160px] h-36 bg-gray-800 rounded-lg animate-pulse"></div>
+      <div class="min-w-[160px] h-36 bg-gray-800 rounded-lg animate-pulse"></div>
+    </div>
+  </section>
+
+  <section class="mt-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="text-white font-semibold mb-4 parkinsans-600">Top Rated</h2>
+    <div id="top-rated" class="flex gap-4 overflow-x-auto pb-4 thin-scroll">
+      <div class="min-w-[160px] h-36 bg-gray-800 rounded-lg animate-pulse"></div>
+      <div class="min-w-[160px] h-36 bg-gray-800 rounded-lg animate-pulse"></div>
+      <div class="min-w-[160px] h-36 bg-gray-800 rounded-lg animate-pulse"></div>
+    </div>
+  </section>
+
+  <section class="mt-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="text-white font-semibold mb-4 parkinsans-600">Upcoming</h2>
+    <div id="upcoming" class="flex gap-4 overflow-x-auto pb-4 thin-scroll">
+      <div class="min-w-[160px] h-36 bg-gray-800 rounded-lg animate-pulse"></div>
+      <div class="min-w-[160px] h-36 bg-gray-800 rounded-lg animate-pulse"></div>
+      <div class="min-w-[160px] h-36 bg-gray-800 rounded-lg animate-pulse"></div>
+    </div>
+  </section>
+</main>
+
+<script src="src/js/app.js"></script>
+</body>
+</html>
