@@ -1,10 +1,11 @@
-// smhsneh
+//smhsneh
 document.addEventListener("DOMContentLoaded", () => {
+
   const trendingContainer = document.getElementById('trending');
   const favContainer = document.getElementById('favourites-container');
   const recContainer = document.getElementById('recommendations');
 
-  const BACKEND_URL = "http://localhost:3000"; 
+  const BACKEND_URL = "https://moovyb.onrender.com";
 
   async function fetchMovies(search = "Avengers", type = "movie") {
     const spinner = document.getElementById('spinner');
@@ -15,12 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await res.json();
       spinner.classList.add('hidden');
 
-      if (!data || data.error) {
-        trendingContainer.innerHTML = `<p class="inter-500 text-gray-400">${data?.error || "No movies found"}</p>`;
-        return;
-      }
-
-      if (data.Search) renderMovies(data.Search);
+      if (data.Response === "True") renderMovies(data.Search);
       else trendingContainer.innerHTML = `<p class="inter-500 text-gray-400">No movies found</p>`;
     } catch (err) {
       spinner.classList.add('hidden');
@@ -31,9 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function fetchMovieDetails(imdbID) {
     try {
-      const res = await fetch(`https://www.omdbapi.com/?apikey=YOUR_API_KEY&i=${imdbID}`);
+      const res = await fetch(`${BACKEND_URL}/movies?id=${imdbID}`);
       const data = await res.json();
-      return data;
+      return data; // full movie details from backend
     } catch (err) {
       console.error('Error fetching movie details:', err);
       return {};
