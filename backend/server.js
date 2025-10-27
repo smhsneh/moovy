@@ -12,14 +12,18 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 app.get("/movies", async (req, res) => {
-  const query = req.query.q;
+  const { q, id } = req.query;
 
-  if (!query) {
-    return res.status(400).json({ error: "Query parameter is required" });
+  if (!q && !id) {
+    return res.status(400).json({ error: "Query or ID parameter is required" });
   }
 
   try {
-    const response = await fetch(`https://www.omdbapi.com/?apikey=${process.env.OMDB_API_KEY}&s=${query}`);
+    const apiUrl = id
+      ? `https://www.omdbapi.com/?apikey=${process.env.OMDB_API_KEY}&i=${id}`
+      : `https://www.omdbapi.com/?apikey=${process.env.OMDB_API_KEY}&s=${q}`;
+
+    const response = await fetch(apiUrl);
     const data = await response.json();
 
     if (data.Response === "False") {
