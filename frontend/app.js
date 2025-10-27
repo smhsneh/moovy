@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const favContainer = document.getElementById('favourites-container');
   const recContainer = document.getElementById('recommendations');
 
-  const BACKEND_URL = "http://localhost:3000";
+  const BACKEND_URL = "https://moovyb.onrender.com/";
 
   async function fetchMovies(search = "Avengers", type = "movie") {
     const spinner = document.getElementById('spinner');
